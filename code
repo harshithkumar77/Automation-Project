@@ -1,1 +1,69 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+# Set up the WebDriver (Chrome)
+opts = webdriver.ChromeOptions()
+opts.add_experimental_option('detach',True)
+driver = webdriver.Chrome(options=opts)# Ensure ChromeDriver is in your PATH
+
+# Open the RedBus website
+driver.get("https://www.redbus.in/")
+
+# Maximize the browser window
+driver.maximize_window()
+
+# Wait until the page is fully loaded
+wait = WebDriverWait(driver, 10)
+
+try:
+    # 1. Enter source city (Bangalore)
+    source_input = wait.until(EC.element_to_be_clickable((By.ID, 'src')))
+    source_input.click()
+    source_input.send_keys('Bangalore')
+    time.sleep(1)  # Delay to let suggestions load
+    source_input.send_keys(Keys.ENTER)
+
+    # 2. Enter destination city (Mangalore)
+    destination_input = driver.find_element(By.ID, 'dest')
+    destination_input.click()
+    destination_input.send_keys('kollur')
+    time.sleep(1)  # Delay to let suggestions load
+    destination_input.send_keys(Keys.ENTER)
+
+
+
+    # 3. Select the date of journey (Example: 1st October, 2024)
+    date_input = driver.find_element(By.XPATH, "//div[@id='onwardCal']")
+    date_input.click()
+    # Use XPath to find the specific date on the calendar (adjust the date as per need)
+    journey_date = driver.find_element(By.XPATH, "//span[normalize-space()='16']")
+    journey_date.click()
+
+    # 4. Click on the "Search Buses" button
+    search_button = driver.find_element(By.ID, 'search_button')
+    search_button.click()
+
+    # Wait for the results page to load
+    wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'bus-item')))
+    print("Buses loaded successfully!")
+
+    # Optional: Print the name of the first bus
+    first_bus_name = driver.find_element(By.CLASS_NAME, 'travels').text
+    print(f"First bus found: {first_bus_name}")
+
+    #seat selection
+    driver.find_element(By.XPATH,"//li[@id='25717604']//div[@class='button view-seats fr'][normalize-space()='View Seats']").click()
+
+
+except Exception as e:
+    print(f"An error occurred: {e}")
+finally:
+    # Close the browser after the task
+    time.sleep(5)  # Wait for a few seconds before closing
+    driver.quit()
+
 
